@@ -1,0 +1,1735 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PADMAVATI MESS - Smart Meal Management</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        brand: {
+                            bg: '#f6f8fe',
+                            card: '#ffffff',
+                            border: '#dbe2f0',
+                            textDark: '#1a2438',
+                            textMuted: '#616d85',
+                            primary: '#2e6bdc',
+                            primaryHover: '#2253b3',
+                            success: '#12a363',
+                            successHover: '#0e824e',
+                            warning: '#f2941e',
+                            warningHover: '#d17b11',
+                            danger: '#dc3842',
+                            dangerHover: '#b82730',
+                            purple: '#7352d1',
+                            purpleHover: '#5c3eb3'
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f6f8fe;
+            color: #1a2438;
+        }
+        .card-shadow {
+            box-shadow: 0 4px 20px -2px rgba(26, 36, 56, 0.05), 0 2px 6px -1px rgba(26, 36, 56, 0.03);
+        }
+        .modal-backdrop {
+            background-color: rgba(15, 23, 42, 0.55);
+            backdrop-filter: blur(4px);
+        }
+        /* Custom scrollbar */
+        ::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #f1f5f9;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #cbd5e1;
+            border-radius: 9999px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #94a3b8;
+        }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col">
+
+    <!-- Navigation Header -->
+    <header class="bg-white border-b border-brand-border sticky top-0 z-30 card-shadow">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3.5 flex flex-wrap items-center justify-between gap-4">
+            <!-- Brand Logo & Title -->
+            <div class="flex items-center space-x-3">
+                <div class="w-11 h-11 bg-brand-primary text-white rounded-xl flex items-center justify-center font-bold text-xl shadow-md shadow-brand-primary/20">
+                    PM
+                </div>
+                <div>
+                    <h1 class="text-xl font-bold tracking-tight text-brand-textDark flex items-center gap-2">
+                        PADMAVATI MESS
+                        <span class="text-xs bg-brand-primary/10 text-brand-primary font-semibold px-2.5 py-0.5 rounded-full border border-brand-primary/20">v2.5 PRO</span>
+                    </h1>
+                    <p class="text-xs font-medium text-brand-textMuted">Smart Meal Management System</p>
+                </div>
+            </div>
+
+            <!-- Date Selector Control -->
+            <div class="flex items-center bg-brand-bg border border-brand-border rounded-xl p-1 shadow-sm">
+                <button onclick="changeDate(-1)" title="Previous Day" class="p-2 hover:bg-white text-brand-textMuted hover:text-brand-primary rounded-lg transition-colors font-bold">
+                    &lt;
+                </button>
+                <div class="flex items-center px-3 font-semibold text-brand-textDark text-sm space-x-2">
+                    <svg class="w-4 h-4 text-brand-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
+                    <span id="displayDateText">06-10-2026</span>
+                    <input type="date" id="datePicker" onchange="onDatePickerChange(this.value)" class="w-0 h-0 opacity-0 absolute">
+                    <button onclick="document.getElementById('datePicker').showPicker()" class="text-xs text-brand-primary hover:underline font-medium">Change</button>
+                </div>
+                <button onclick="setTodayDate()" class="px-2.5 py-1 text-xs font-semibold bg-white border border-brand-border text-brand-textDark hover:bg-brand-primary hover:text-white hover:border-brand-primary rounded-lg transition-all shadow-2xs">
+                    Today
+                </button>
+                <button onclick="changeDate(1)" title="Next Day" class="p-2 hover:bg-white text-brand-textMuted hover:text-brand-primary rounded-lg transition-colors font-bold">
+                    &gt;
+                </button>
+            </div>
+
+            <!-- Top Header Actions -->
+            <div class="flex items-center space-x-2.5">
+                <button onclick="openConsolidatedHistoryModal()" class="px-3.5 py-2 bg-brand-purple hover:bg-brand-purpleHover text-white text-sm font-semibold rounded-xl flex items-center gap-1.5 shadow-sm transition-all">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
+                    <span>HISTORY</span>
+                </button>
+                <button onclick="openSettingsModal()" class="px-3.5 py-2 bg-white hover:bg-slate-50 border border-brand-border text-brand-textDark text-sm font-semibold rounded-xl flex items-center gap-1.5 shadow-xs transition-all">
+                    <svg class="w-4 h-4 text-brand-textMuted" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
+                    <span>SETTINGS</span>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content Container -->
+    <main class="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6 space-y-6">
+
+        <!-- Toolbar Section -->
+        <div class="bg-white border border-brand-border rounded-2xl p-4 card-shadow space-y-3.5">
+            <div class="flex flex-wrap items-center justify-between gap-3">
+                <!-- Action Buttons -->
+                <div class="flex flex-wrap items-center gap-2">
+                    <button onclick="openAddMemberModal()" class="px-4 py-2 bg-brand-primary hover:bg-brand-primaryHover text-white text-sm font-semibold rounded-xl flex items-center gap-2 shadow-sm transition-all">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 4v16m8-8H4"></path></svg>
+                        <span>ADD MEMBER</span>
+                    </button>
+                    <button onclick="refreshDataUI()" class="px-3.5 py-2 bg-white hover:bg-slate-50 border border-brand-border text-brand-textDark text-sm font-semibold rounded-xl flex items-center gap-1.5 transition-all">
+                        <svg class="w-4 h-4 text-brand-textMuted" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path></svg>
+                        <span>REFRESH</span>
+                    </button>
+                    <button onclick="openMemberListModal()" class="px-3.5 py-2 bg-white hover:bg-slate-50 border border-brand-border text-brand-textDark text-sm font-semibold rounded-xl flex items-center gap-1.5 transition-all">
+                        <svg class="w-4 h-4 text-brand-textMuted" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 10h16M4 14h16M4 18h16"></path></svg>
+                        <span>MEMBER LIST</span>
+                    </button>
+                </div>
+
+                <!-- Search & Multi-Select -->
+                <div class="flex flex-wrap items-center gap-2.5 flex-1 max-w-md">
+                    <div class="relative w-full">
+                        <svg class="w-4 h-4 text-brand-textMuted absolute left-3 top-1/2 -translate-y-1/2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
+                        <input type="text" id="searchInput" oninput="onSearchInput(this.value)" placeholder="Search by name, mobile, or room..." class="w-full pl-9 pr-4 py-2 bg-brand-bg border border-brand-border rounded-xl text-sm focus:outline-none focus:border-brand-primary focus:bg-white transition-all">
+                    </div>
+                </div>
+            </div>
+
+            <!-- Filter Status & Quick Multi-Select Controls -->
+            <div class="flex flex-wrap items-center justify-between pt-2 border-t border-slate-100 text-xs font-medium text-brand-textMuted gap-2">
+                <div class="flex items-center space-x-2">
+                    <span id="selectionSummaryText">Selected: 0 / 0 Visible Members</span>
+                    <span class="text-slate-300">|</span>
+                    <button onclick="selectAllVisible()" class="text-brand-primary hover:underline font-semibold">✓ SELECT ALL</button>
+                    <span class="text-slate-300">•</span>
+                    <button onclick="clearAllVisible()" class="text-brand-danger hover:underline font-semibold">CLEAR</button>
+                </div>
+                <div class="flex items-center space-x-2">
+                    <span id="currentDateStatusText">Entry Date: 06-10-2026</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Metrics Dashboard Cards -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+            <!-- Card 1: Total Members -->
+            <div class="bg-white border border-brand-border rounded-2xl p-4 card-shadow flex items-center justify-between">
+                <div>
+                    <p class="text-xs font-bold uppercase tracking-wider text-brand-textMuted">TOTAL MEMBERS</p>
+                    <h2 id="metricTotalMembers" class="text-2xl font-extrabold text-brand-textDark mt-1">0</h2>
+                    <p id="metricTotalSubtext" class="text-xs text-brand-textMuted mt-0.5">Active: 0 | Inactive: 0</p>
+                </div>
+                <div class="w-12 h-12 bg-blue-50 text-brand-primary rounded-xl flex items-center justify-center font-bold text-lg">
+                    👥
+                </div>
+            </div>
+
+            <!-- Card 2: Meals Marked -->
+            <div class="bg-white border border-brand-border rounded-2xl p-4 card-shadow flex items-center justify-between">
+                <div>
+                    <p class="text-xs font-bold uppercase tracking-wider text-brand-textMuted">MEALS MARKED</p>
+                    <h2 id="metricMealsMarked" class="text-2xl font-extrabold text-brand-success mt-1">0</h2>
+                    <p class="text-xs text-brand-textMuted mt-0.5">Checked Active Members</p>
+                </div>
+                <div class="w-12 h-12 bg-emerald-50 text-brand-success rounded-xl flex items-center justify-center font-bold text-lg">
+                    ✅
+                </div>
+            </div>
+
+            <!-- Card 3: Pending Review (Interactive Action Card) -->
+            <div onclick="openPendingReviewModal()" class="bg-white border border-brand-border hover:border-brand-warning rounded-2xl p-4 card-shadow flex items-center justify-between cursor-pointer transition-all hover:scale-[1.01]">
+                <div>
+                    <div class="flex items-center gap-1">
+                        <p class="text-xs font-bold uppercase tracking-wider text-brand-textMuted">PENDING REVIEW</p>
+                        <span class="inline-block w-2 h-2 rounded-full bg-brand-warning animate-pulse"></span>
+                    </div>
+                    <h2 id="metricPendingReview" class="text-2xl font-extrabold text-brand-warning mt-1">0</h2>
+                    <p class="text-xs font-semibold text-brand-warning hover:underline mt-0.5 flex items-center gap-1">
+                        Click to review & mark ➔
+                    </p>
+                </div>
+                <div class="w-12 h-12 bg-amber-50 text-brand-warning rounded-xl flex items-center justify-center font-bold text-lg">
+                    ⏳
+                </div>
+            </div>
+
+            <!-- Card 4: Expected Meals -->
+            <div class="bg-white border border-brand-border rounded-2xl p-4 card-shadow flex items-center justify-between">
+                <div>
+                    <p class="text-xs font-bold uppercase tracking-wider text-brand-textMuted">EXPECTED MEALS</p>
+                    <h2 id="metricExpectedMeals" class="text-2xl font-extrabold text-brand-purple mt-1">0</h2>
+                    <p class="text-xs text-brand-textMuted mt-0.5">Sum of Active Plans</p>
+                </div>
+                <div class="w-12 h-12 bg-purple-50 text-brand-purple rounded-xl flex items-center justify-center font-bold text-lg">
+                    🍽️
+                </div>
+            </div>
+        </div>
+
+        <!-- Members Cards Grid -->
+        <div>
+            <div class="flex items-center justify-between mb-3 px-1">
+                <h3 class="text-sm font-bold uppercase tracking-wider text-brand-textMuted flex items-center gap-2">
+                    Mess Members
+                    <span id="memberCardsCountBadge" class="bg-slate-200 text-brand-textDark text-xs px-2 py-0.5 rounded-full">0</span>
+                </h3>
+            </div>
+
+            <div id="membersGrid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                <!-- Member cards rendered dynamically -->
+            </div>
+
+            <!-- Empty State Container -->
+            <div id="emptyState" class="hidden bg-white border border-brand-border rounded-2xl p-12 text-center card-shadow">
+                <div class="w-16 h-16 bg-slate-100 rounded-full flex items-center justify-center mx-auto text-2xl text-slate-400 mb-3">🔍</div>
+                <h4 class="text-lg font-bold text-brand-textDark">No members found</h4>
+                <p class="text-sm text-brand-textMuted max-w-sm mx-auto mt-1">Try adjusting your search criteria or add a new member to get started.</p>
+                <button onclick="openAddMemberModal()" class="mt-4 px-4 py-2 bg-brand-primary text-white text-sm font-semibold rounded-xl inline-flex items-center gap-2 shadow-sm">
+                    + Add New Member
+                </button>
+            </div>
+        </div>
+    </main>
+
+    <!-- MODALS SECTION -->
+
+    <!-- 1. Add Member Modal -->
+    <div id="addMemberModal" class="fixed inset-0 z-50 modal-backdrop hidden flex items-center justify-center p-4">
+        <div class="bg-white rounded-2xl border border-brand-border max-w-md w-full p-6 card-shadow space-y-4 max-h-[90vh] overflow-y-auto">
+            <div class="flex items-center justify-between border-b border-slate-100 pb-3">
+                <h3 class="text-lg font-bold text-brand-textDark">Register New Member</h3>
+                <button onclick="closeModal('addMemberModal')" class="text-brand-textMuted hover:text-brand-textDark font-bold text-xl">&times;</button>
+            </div>
+            <form id="addMemberForm" onsubmit="handleAddMember(event)" class="space-y-3.5">
+                <div>
+                    <label class="block text-xs font-bold text-brand-textDark uppercase mb-1">Full Name *</label>
+                    <input type="text" id="addName" required placeholder="e.g. Rahul Sharma" class="w-full px-3 py-2 bg-brand-bg border border-brand-border rounded-xl text-sm focus:outline-none focus:border-brand-primary">
+                </div>
+                <div class="grid grid-cols-2 gap-3">
+                    <div>
+                        <label class="block text-xs font-bold text-brand-textDark uppercase mb-1">Member Mobile</label>
+                        <input type="tel" id="addMobile" placeholder="9876543210" class="w-full px-3 py-2 bg-brand-bg border border-brand-border rounded-xl text-sm focus:outline-none focus:border-brand-primary">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-brand-textDark uppercase mb-1">Parent Mobile</label>
+                        <input type="tel" id="addParentMobile" placeholder="9876500001" class="w-full px-3 py-2 bg-brand-bg border border-brand-border rounded-xl text-sm focus:outline-none focus:border-brand-primary">
+                    </div>
+                </div>
+                <div class="grid grid-cols-2 gap-3">
+                    <div>
+                        <label class="block text-xs font-bold text-brand-textDark uppercase mb-1">Room / Flat #</label>
+                        <input type="text" id="addRoom" placeholder="A-101" class="w-full px-3 py-2 bg-brand-bg border border-brand-border rounded-xl text-sm focus:outline-none focus:border-brand-primary">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-brand-textDark uppercase mb-1">Joining Date</label>
+                        <input type="date" id="addJoinDate" class="w-full px-3 py-2 bg-brand-bg border border-brand-border rounded-xl text-sm focus:outline-none focus:border-brand-primary">
+                    </div>
+                </div>
+                <div>
+                    <label class="block text-xs font-bold text-brand-textDark uppercase mb-1">Status</label>
+                    <select id="addStatus" class="w-full px-3 py-2 bg-brand-bg border border-brand-border rounded-xl text-sm focus:outline-none focus:border-brand-primary">
+                        <option value="Active">Active</option>
+                        <option value="Inactive">Inactive</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="block text-xs font-bold text-brand-textDark uppercase mb-1">Meal Plan Requirements *</label>
+                    <div class="flex items-center space-x-4 bg-brand-bg border border-brand-border rounded-xl p-3">
+                        <label class="flex items-center space-x-1.5 text-xs font-semibold text-brand-textDark cursor-pointer">
+                            <input type="checkbox" id="addPlanBreakfast" checked class="rounded text-brand-primary focus:ring-brand-primary">
+                            <span>Breakfast</span>
+                        </label>
+                        <label class="flex items-center space-x-1.5 text-xs font-semibold text-brand-textDark cursor-pointer">
+                            <input type="checkbox" id="addPlanLunch" checked class="rounded text-brand-primary focus:ring-brand-primary">
+                            <span>Lunch</span>
+                        </label>
+                        <label class="flex items-center space-x-1.5 text-xs font-semibold text-brand-textDark cursor-pointer">
+                            <input type="checkbox" id="addPlanDinner" checked class="rounded text-brand-primary focus:ring-brand-primary">
+                            <span>Dinner</span>
+                        </label>
+                    </div>
+                </div>
+                <div class="flex items-center justify-end space-x-2 pt-2 border-t border-slate-100">
+                    <button type="button" onclick="closeModal('addMemberModal')" class="px-4 py-2 border border-brand-border rounded-xl text-xs font-bold text-brand-textMuted hover:bg-slate-50">Cancel</button>
+                    <button type="submit" class="px-4 py-2 bg-brand-primary hover:bg-brand-primaryHover text-white rounded-xl text-xs font-bold shadow-sm">Save Member</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- 2. Edit Member Modal -->
+    <div id="editMemberModal" class="fixed inset-0 z-50 modal-backdrop hidden flex items-center justify-center p-4">
+        <div class="bg-white rounded-2xl border border-brand-border max-w-md w-full p-6 card-shadow space-y-4 max-h-[90vh] overflow-y-auto">
+            <div class="flex items-center justify-between border-b border-slate-100 pb-3">
+                <h3 class="text-lg font-bold text-brand-textDark">Edit Member Profile</h3>
+                <button onclick="closeModal('editMemberModal')" class="text-brand-textMuted hover:text-brand-textDark font-bold text-xl">&times;</button>
+            </div>
+            <form id="editMemberForm" onsubmit="handleEditMember(event)" class="space-y-3.5">
+                <input type="hidden" id="editMemberId">
+                <div>
+                    <label class="block text-xs font-bold text-brand-textDark uppercase mb-1">Full Name *</label>
+                    <input type="text" id="editName" required class="w-full px-3 py-2 bg-brand-bg border border-brand-border rounded-xl text-sm focus:outline-none focus:border-brand-primary">
+                </div>
+                <div class="grid grid-cols-2 gap-3">
+                    <div>
+                        <label class="block text-xs font-bold text-brand-textDark uppercase mb-1">Member Mobile</label>
+                        <input type="tel" id="editMobile" class="w-full px-3 py-2 bg-brand-bg border border-brand-border rounded-xl text-sm focus:outline-none focus:border-brand-primary">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-brand-textDark uppercase mb-1">Parent Mobile</label>
+                        <input type="tel" id="editParentMobile" class="w-full px-3 py-2 bg-brand-bg border border-brand-border rounded-xl text-sm focus:outline-none focus:border-brand-primary">
+                    </div>
+                </div>
+                <div class="grid grid-cols-2 gap-3">
+                    <div>
+                        <label class="block text-xs font-bold text-brand-textDark uppercase mb-1">Room / Flat #</label>
+                        <input type="text" id="editRoom" class="w-full px-3 py-2 bg-brand-bg border border-brand-border rounded-xl text-sm focus:outline-none focus:border-brand-primary">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-brand-textDark uppercase mb-1">Status</label>
+                        <select id="editStatus" class="w-full px-3 py-2 bg-brand-bg border border-brand-border rounded-xl text-sm focus:outline-none focus:border-brand-primary">
+                            <option value="Active">Active</option>
+                            <option value="Inactive">Inactive</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="grid grid-cols-2 gap-3">
+                    <div>
+                        <label class="block text-xs font-bold text-brand-textDark uppercase mb-1">Joining Date</label>
+                        <input type="date" id="editJoinDate" class="w-full px-3 py-2 bg-brand-bg border border-brand-border rounded-xl text-sm focus:outline-none focus:border-brand-primary">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-brand-textDark uppercase mb-1">Leaving Date</label>
+                        <input type="date" id="editLeaveDate" class="w-full px-3 py-2 bg-brand-bg border border-brand-border rounded-xl text-sm focus:outline-none focus:border-brand-primary">
+                    </div>
+                </div>
+                <div>
+                    <label class="block text-xs font-bold text-brand-textDark uppercase mb-1">Meal Plan Requirements</label>
+                    <div class="flex items-center space-x-4 bg-brand-bg border border-brand-border rounded-xl p-3">
+                        <label class="flex items-center space-x-1.5 text-xs font-semibold text-brand-textDark cursor-pointer">
+                            <input type="checkbox" id="editPlanBreakfast" class="rounded text-brand-primary focus:ring-brand-primary">
+                            <span>Breakfast</span>
+                        </label>
+                        <label class="flex items-center space-x-1.5 text-xs font-semibold text-brand-textDark cursor-pointer">
+                            <input type="checkbox" id="editPlanLunch" class="rounded text-brand-primary focus:ring-brand-primary">
+                            <span>Lunch</span>
+                        </label>
+                        <label class="flex items-center space-x-1.5 text-xs font-semibold text-brand-textDark cursor-pointer">
+                            <input type="checkbox" id="editPlanDinner" class="rounded text-brand-primary focus:ring-brand-primary">
+                            <span>Dinner</span>
+                        </label>
+                    </div>
+                </div>
+                <div class="flex items-center justify-between pt-2 border-t border-slate-100">
+                    <button type="button" onclick="deleteCurrentEditMember()" class="px-3 py-2 bg-red-50 hover:bg-red-100 text-brand-danger rounded-xl text-xs font-bold transition-all">Delete Member</button>
+                    <div class="flex items-center space-x-2">
+                        <button type="button" onclick="closeModal('editMemberModal')" class="px-4 py-2 border border-brand-border rounded-xl text-xs font-bold text-brand-textMuted hover:bg-slate-50">Cancel</button>
+                        <button type="submit" class="px-4 py-2 bg-brand-primary hover:bg-brand-primaryHover text-white rounded-xl text-xs font-bold shadow-sm">Update Member</button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- 3. Profile Modal -->
+    <div id="profileModal" class="fixed inset-0 z-50 modal-backdrop hidden flex items-center justify-center p-4">
+        <div class="bg-white rounded-2xl border border-brand-border max-w-md w-full p-6 card-shadow space-y-4">
+            <div class="flex items-center justify-between border-b border-slate-100 pb-3">
+                <h3 class="text-lg font-bold text-brand-textDark">Member Profile Details</h3>
+                <button onclick="closeModal('profileModal')" class="text-brand-textMuted hover:text-brand-textDark font-bold text-xl">&times;</button>
+            </div>
+            <div id="profileDetailsContent" class="space-y-3">
+                <!-- Profile populated dynamically -->
+            </div>
+            <div class="pt-2 border-t border-slate-100 flex justify-end">
+                <button onclick="closeModal('profileModal')" class="px-4 py-2 bg-brand-primary text-white text-xs font-bold rounded-xl shadow-sm">Close</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 4. Individual Member History Modal -->
+    <div id="individualHistoryModal" class="fixed inset-0 z-50 modal-backdrop hidden flex items-center justify-center p-4">
+        <div class="bg-white rounded-2xl border border-brand-border max-w-2xl w-full p-6 card-shadow space-y-4 max-h-[90vh] flex flex-col">
+            <div class="flex items-center justify-between border-b border-slate-100 pb-3">
+                <div>
+                    <h3 id="indivHistoryTitle" class="text-lg font-bold text-brand-textDark">Member Meal History</h3>
+                    <p id="indivHistorySubtitle" class="text-xs text-brand-textMuted">Filter and view recorded meals</p>
+                </div>
+                <button onclick="closeModal('individualHistoryModal')" class="text-brand-textMuted hover:text-brand-textDark font-bold text-xl">&times;</button>
+            </div>
+
+            <!-- Filters -->
+            <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 bg-brand-bg border border-brand-border rounded-xl p-3 text-xs">
+                <div>
+                    <label class="block font-bold text-brand-textDark uppercase mb-1">View Mode</label>
+                    <select id="indivHistoryMode" onchange="renderIndividualHistoryModal()" class="w-full px-2.5 py-1.5 bg-white border border-brand-border rounded-lg">
+                        <option value="all">All History</option>
+                        <option value="selectedDate">Selected Date</option>
+                        <option value="range">Date Range</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="block font-bold text-brand-textDark uppercase mb-1">From Date</label>
+                    <input type="date" id="indivHistoryFrom" onchange="renderIndividualHistoryModal()" class="w-full px-2.5 py-1.5 bg-white border border-brand-border rounded-lg">
+                </div>
+                <div>
+                    <label class="block font-bold text-brand-textDark uppercase mb-1">To Date</label>
+                    <input type="date" id="indivHistoryTo" onchange="renderIndividualHistoryModal()" class="w-full px-2.5 py-1.5 bg-white border border-brand-border rounded-lg">
+                </div>
+            </div>
+
+            <!-- Logs Table Container -->
+            <div class="flex-1 overflow-y-auto border border-brand-border rounded-xl">
+                <table class="w-full text-left border-collapse text-xs">
+                    <thead class="bg-slate-50 border-b border-brand-border text-brand-textMuted font-bold sticky top-0 uppercase">
+                        <tr>
+                            <th class="p-3">Date</th>
+                            <th class="p-3">Meal Type</th>
+                            <th class="p-3">Timestamp</th>
+                            <th class="p-3 text-right">Action</th>
+                        </tr>
+                    </thead>
+                    <tbody id="indivHistoryTableBody" class="divide-y divide-slate-100">
+                        <!-- Populated dynamically -->
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="flex items-center justify-between pt-2 border-t border-slate-100">
+                <span id="indivHistorySummaryText" class="text-xs font-semibold text-brand-textMuted">Total Records: 0</span>
+                <div class="flex items-center space-x-2">
+                    <button onclick="exportIndividualHistoryCSV()" class="px-3.5 py-2 bg-brand-success hover:bg-brand-successHover text-white text-xs font-bold rounded-xl flex items-center gap-1.5 shadow-sm">
+                        📥 EXPORT TO CSV
+                    </button>
+                    <button onclick="closeModal('individualHistoryModal')" class="px-4 py-2 border border-brand-border text-xs font-bold text-brand-textMuted rounded-xl hover:bg-slate-50">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 5. Consolidated History Modal -->
+    <div id="consolidatedHistoryModal" class="fixed inset-0 z-50 modal-backdrop hidden flex items-center justify-center p-4">
+        <div class="bg-white rounded-2xl border border-brand-border max-w-4xl w-full p-6 card-shadow space-y-4 max-h-[90vh] flex flex-col">
+            <div class="flex items-center justify-between border-b border-slate-100 pb-3">
+                <div>
+                    <h3 class="text-lg font-bold text-brand-textDark">Consolidated Meal Logs</h3>
+                    <p class="text-xs text-brand-textMuted">Complete mess attendance records and reporting</p>
+                </div>
+                <button onclick="closeModal('consolidatedHistoryModal')" class="text-brand-textMuted hover:text-brand-textDark font-bold text-xl">&times;</button>
+            </div>
+
+            <!-- Filters -->
+            <div class="grid grid-cols-1 sm:grid-cols-4 gap-3 bg-brand-bg border border-brand-border rounded-xl p-3 text-xs">
+                <div>
+                    <label class="block font-bold text-brand-textDark uppercase mb-1">Customer / Member</label>
+                    <select id="consHistoryMemberFilter" onchange="renderConsolidatedHistoryModal()" class="w-full px-2.5 py-1.5 bg-white border border-brand-border rounded-lg">
+                        <option value="all">-- All Customers --</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="block font-bold text-brand-textDark uppercase mb-1">Filter Mode</label>
+                    <select id="consHistoryMode" onchange="renderConsolidatedHistoryModal()" class="w-full px-2.5 py-1.5 bg-white border border-brand-border rounded-lg">
+                        <option value="selectedDate">Selected Date Only</option>
+                        <option value="all">All Time</option>
+                        <option value="range">Date Range</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="block font-bold text-brand-textDark uppercase mb-1">From Date</label>
+                    <input type="date" id="consHistoryFrom" onchange="renderConsolidatedHistoryModal()" class="w-full px-2.5 py-1.5 bg-white border border-brand-border rounded-lg">
+                </div>
+                <div>
+                    <label class="block font-bold text-brand-textDark uppercase mb-1">To Date</label>
+                    <input type="date" id="consHistoryTo" onchange="renderConsolidatedHistoryModal()" class="w-full px-2.5 py-1.5 bg-white border border-brand-border rounded-lg">
+                </div>
+            </div>
+
+            <!-- Consolidated Logs Table -->
+            <div class="flex-1 overflow-y-auto border border-brand-border rounded-xl">
+                <table class="w-full text-left border-collapse text-xs">
+                    <thead class="bg-slate-50 border-b border-brand-border text-brand-textMuted font-bold sticky top-0 uppercase">
+                        <tr>
+                            <th class="p-3">Date</th>
+                            <th class="p-3">Member Name</th>
+                            <th class="p-3">Room #</th>
+                            <th class="p-3">Meal Type</th>
+                            <th class="p-3">Timestamp</th>
+                            <th class="p-3 text-right">Action</th>
+                        </tr>
+                    </thead>
+                    <tbody id="consHistoryTableBody" class="divide-y divide-slate-100">
+                        <!-- Dynamic rows -->
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="flex flex-wrap items-center justify-between pt-2 border-t border-slate-100 gap-2">
+                <div class="text-xs font-semibold text-brand-textMuted flex items-center space-x-4">
+                    <span id="consTotalRecordsText">Total Logs: 0</span>
+                    <span id="consBreakfastCountText" class="text-amber-600">B: 0</span>
+                    <span id="consLunchCountText" class="text-blue-600">L: 0</span>
+                    <span id="consDinnerCountText" class="text-purple-600">D: 0</span>
+                </div>
+                <div class="flex items-center space-x-2">
+                    <button onclick="exportConsolidatedHistoryCSV()" class="px-3.5 py-2 bg-brand-success hover:bg-brand-successHover text-white text-xs font-bold rounded-xl flex items-center gap-1.5 shadow-sm">
+                        📥 EXPORT FILTERED TO CSV
+                    </button>
+                    <button onclick="closeModal('consolidatedHistoryModal')" class="px-4 py-2 border border-brand-border text-xs font-bold text-brand-textMuted rounded-xl hover:bg-slate-50">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 6. Pending Review Modal -->
+    <div id="pendingReviewModal" class="fixed inset-0 z-50 modal-backdrop hidden flex items-center justify-center p-4">
+        <div class="bg-white rounded-2xl border border-brand-border max-w-2xl w-full p-6 card-shadow space-y-4 max-h-[90vh] flex flex-col">
+            <div class="flex items-center justify-between border-b border-slate-100 pb-3">
+                <div>
+                    <h3 class="text-lg font-bold text-brand-textDark flex items-center gap-2">
+                        <span>Pending Meals Review</span>
+                        <span id="pendingDateBadge" class="text-xs bg-amber-100 text-brand-warning font-bold px-2.5 py-0.5 rounded-full">06-10-2026</span>
+                    </h3>
+                    <p class="text-xs text-brand-textMuted">Active checked members with unmarked meals scheduled for today</p>
+                </div>
+                <button onclick="closeModal('pendingReviewModal')" class="text-brand-textMuted hover:text-brand-textDark font-bold text-xl">&times;</button>
+            </div>
+
+            <!-- Global Quick Mark Actions -->
+            <div class="bg-amber-50 border border-amber-200 rounded-xl p-3 flex flex-wrap items-center justify-between gap-2">
+                <span class="text-xs font-bold text-amber-900">BULK MARK PENDING:</span>
+                <div class="flex items-center space-x-2">
+                    <button onclick="bulkMarkPending('breakfast')" class="px-3 py-1.5 bg-brand-warning hover:bg-brand-warningHover text-white text-xs font-bold rounded-lg shadow-2xs">✓ ALL BREAKFAST</button>
+                    <button onclick="bulkMarkPending('lunch')" class="px-3 py-1.5 bg-brand-primary hover:bg-brand-primaryHover text-white text-xs font-bold rounded-lg shadow-2xs">✓ ALL LUNCH</button>
+                    <button onclick="bulkMarkPending('dinner')" class="px-3 py-1.5 bg-brand-purple hover:bg-brand-purpleHover text-white text-xs font-bold rounded-lg shadow-2xs">✓ ALL DINNER</button>
+                </div>
+            </div>
+
+            <!-- Pending Members List Container -->
+            <div class="flex-1 overflow-y-auto border border-brand-border rounded-xl">
+                <div id="pendingMembersList" class="divide-y divide-slate-100">
+                    <!-- Dynamic pending cards -->
+                </div>
+            </div>
+
+            <div class="flex justify-end pt-2 border-t border-slate-100">
+                <button onclick="closeModal('pendingReviewModal')" class="px-4 py-2 bg-brand-primary text-white text-xs font-bold rounded-xl shadow-sm">Done</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 7. Member List Summary Table Modal -->
+    <div id="memberListModal" class="fixed inset-0 z-50 modal-backdrop hidden flex items-center justify-center p-4">
+        <div class="bg-white rounded-2xl border border-brand-border max-w-4xl w-full p-6 card-shadow space-y-4 max-h-[90vh] flex flex-col">
+            <div class="flex items-center justify-between border-b border-slate-100 pb-3">
+                <div>
+                    <h3 class="text-lg font-bold text-brand-textDark">All Registered Members Summary</h3>
+                    <p class="text-xs text-brand-textMuted">Complete list of registered mess patrons</p>
+                </div>
+                <button onclick="closeModal('memberListModal')" class="text-brand-textMuted hover:text-brand-textDark font-bold text-xl">&times;</button>
+            </div>
+
+            <div class="flex items-center justify-between gap-2">
+                <input type="text" id="memberListSearch" oninput="renderMemberListModalTable()" placeholder="Filter member list..." class="px-3 py-1.5 bg-brand-bg border border-brand-border rounded-xl text-xs w-64">
+                <button onclick="exportMemberListCSV()" class="px-3 py-1.5 bg-brand-primary hover:bg-brand-primaryHover text-white text-xs font-bold rounded-xl shadow-2xs">📥 Export Members List</button>
+            </div>
+
+            <div class="flex-1 overflow-y-auto border border-brand-border rounded-xl">
+                <table class="w-full text-left border-collapse text-xs">
+                    <thead class="bg-slate-50 border-b border-brand-border text-brand-textMuted font-bold sticky top-0 uppercase">
+                        <tr>
+                            <th class="p-3">Status</th>
+                            <th class="p-3">Name</th>
+                            <th class="p-3">Mobile</th>
+                            <th class="p-3">Parent Mobile</th>
+                            <th class="p-3">Room #</th>
+                            <th class="p-3">Plan</th>
+                            <th class="p-3">Joined Date</th>
+                        </tr>
+                    </thead>
+                    <tbody id="memberListTableBody" class="divide-y divide-slate-100">
+                        <!-- Rendered dynamically -->
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="flex justify-end pt-2 border-t border-slate-100">
+                <button onclick="closeModal('memberListModal')" class="px-4 py-2 border border-brand-border text-xs font-bold text-brand-textMuted rounded-xl hover:bg-slate-50">Close</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 8. Uncheck Protection Modal -->
+    <div id="uncheckConfirmModal" class="fixed inset-0 z-50 modal-backdrop hidden flex items-center justify-center p-4">
+        <div class="bg-white rounded-2xl border border-brand-border max-w-sm w-full p-5 card-shadow space-y-4">
+            <div class="flex items-center space-x-3 text-brand-danger">
+                <div class="w-10 h-10 bg-red-100 rounded-full flex items-center justify-center font-bold text-lg">⚠️</div>
+                <h3 class="text-base font-bold text-brand-textDark">Uncheck Meal?</h3>
+            </div>
+            <p id="uncheckConfirmText" class="text-xs text-brand-textMuted leading-relaxed">
+                Are you sure you want to unmark this meal? This will remove the recorded entry for this date.
+            </p>
+            <div class="flex items-center justify-end space-x-2 pt-2 border-t border-slate-100">
+                <button onclick="closeModal('uncheckConfirmModal')" class="px-4 py-2 border border-brand-border rounded-xl text-xs font-bold text-brand-textDark hover:bg-slate-50">KEEP MARKED</button>
+                <button id="confirmUncheckBtn" onclick="executeMealUncheck()" class="px-4 py-2 bg-brand-danger hover:bg-brand-dangerHover text-white rounded-xl text-xs font-bold shadow-sm">UNCHECK MEAL</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 9. Settings Modal -->
+    <div id="settingsModal" class="fixed inset-0 z-50 modal-backdrop hidden flex items-center justify-center p-4">
+        <div class="bg-white rounded-2xl border border-brand-border max-w-md w-full p-6 card-shadow space-y-4">
+            <div class="flex items-center justify-between border-b border-slate-100 pb-3">
+                <h3 class="text-lg font-bold text-brand-textDark">System Settings & Data</h3>
+                <button onclick="closeModal('settingsModal')" class="text-brand-textMuted hover:text-brand-textDark font-bold text-xl">&times;</button>
+            </div>
+
+            <div class="space-y-3">
+                <div class="bg-brand-bg border border-brand-border rounded-xl p-3 text-xs space-y-1">
+                    <p class="font-bold text-brand-textDark">Database Status:</p>
+                    <p class="text-brand-textMuted" id="dbStatusMembersCount">Members: 0</p>
+                    <p class="text-brand-textMuted" id="dbStatusMealsCount">Total Meal Logs: 0</p>
+                </div>
+
+                <div class="space-y-2 pt-1">
+                    <button onclick="exportJSONBackup()" class="w-full py-2.5 px-4 bg-brand-primary hover:bg-brand-primaryHover text-white font-bold text-xs rounded-xl flex items-center justify-center gap-2 shadow-2xs">
+                        💾 Backup Database to JSON
+                    </button>
+                    
+                    <label class="w-full py-2.5 px-4 bg-white border border-brand-border hover:bg-slate-50 text-brand-textDark font-bold text-xs rounded-xl flex items-center justify-center gap-2 cursor-pointer transition-all">
+                        📂 Import Database from JSON
+                        <input type="file" accept=".json" onchange="importJSONBackup(event)" class="hidden">
+                    </label>
+
+                    <button onclick="resetToSampleData()" class="w-full py-2.5 px-4 bg-amber-50 hover:bg-amber-100 text-brand-warning border border-amber-200 font-bold text-xs rounded-xl flex items-center justify-center gap-2 transition-all">
+                        ↻ Reset to Default Sample Data
+                    </button>
+
+                    <button onclick="clearAllDatabaseData()" class="w-full py-2.5 px-4 bg-red-50 hover:bg-red-100 text-brand-danger border border-red-200 font-bold text-xs rounded-xl flex items-center justify-center gap-2 transition-all">
+                        🗑️ Clear All Database Records
+                    </button>
+                </div>
+            </div>
+
+            <div class="pt-2 border-t border-slate-100 flex justify-end">
+                <button onclick="closeModal('settingsModal')" class="px-4 py-2 border border-brand-border text-xs font-bold text-brand-textMuted rounded-xl hover:bg-slate-50">Close</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast Notification Popup -->
+    <div id="toastNotification" class="fixed bottom-5 right-5 z-50 transform translate-y-20 opacity-0 transition-all duration-300 pointer-events-none">
+        <div class="bg-brand-textDark text-white px-4 py-3 rounded-xl shadow-xl flex items-center space-x-2.5 text-xs font-semibold">
+            <span id="toastIcon">ℹ️</span>
+            <span id="toastText">Action completed successfully.</span>
+        </div>
+    </div>
+
+    <!-- JAVASCRIPT LOGIC -->
+    <script>
+        const STORAGE_KEY_MEMBERS = 'padmavati_mess_members_v2';
+        const STORAGE_KEY_MEALS = 'padmavati_mess_meals_v2';
+
+        // Core Application State
+        let members = [];
+        let meals = [];
+        let selectedDate = getFormattedDateISO(new Date()); // YYYY-MM-DD
+        let checkedMemberIds = new Set();
+        let searchQuery = '';
+        
+        // Pending Uncheck Action Holder
+        let pendingUncheckAction = null;
+
+        // Sample Data Generation
+        function generateDefaultSampleData() {
+            const todayStr = getFormattedDateISO(new Date());
+            const yesterdayStr = getOffsetDateISO(todayStr, -1);
+            const prevYesterdayStr = getOffsetDateISO(todayStr, -2);
+
+            const sampleMembers = [
+                { id: 'M101', name: 'Rahul Sharma', mobile: '9876543210', parentMobile: '9876500001', room: 'A-101', joinDate: '2026-01-10', leaveDate: '', status: 'Active', plan: { breakfast: true, lunch: true, dinner: true } },
+                { id: 'M102', name: 'Priya Patel', mobile: '9812345678', parentMobile: '9812300002', room: 'B-204', joinDate: '2026-02-01', leaveDate: '', status: 'Active', plan: { breakfast: false, lunch: true, dinner: true } },
+                { id: 'M103', name: 'Amit Verma', mobile: '9765432109', parentMobile: '9765400003', room: 'A-105', joinDate: '2026-01-15', leaveDate: '', status: 'Active', plan: { breakfast: true, lunch: true, dinner: true } },
+                { id: 'M104', name: 'Sneha Kulkarni', mobile: '9988776655', parentMobile: '9988700004', room: 'C-302', joinDate: '2026-03-05', leaveDate: '', status: 'Active', plan: { breakfast: true, lunch: true, dinner: false } },
+                { id: 'M105', name: 'Rohan Joshi', mobile: '9554433221', parentMobile: '9554400005', room: 'B-108', joinDate: '2026-02-20', leaveDate: '', status: 'Active', plan: { breakfast: true, lunch: true, dinner: true } },
+                { id: 'M106', name: 'Ananya Deshmukh', mobile: '9112233445', parentMobile: '9112200006', room: 'A-202', joinDate: '2025-11-01', leaveDate: '2026-09-30', status: 'Inactive', plan: { breakfast: false, lunch: true, dinner: true } }
+            ];
+
+            const sampleMeals = [
+                // Today's Meals
+                { id: 'L1', memberId: 'M101', date: todayStr, mealType: 'breakfast', timestamp: `${todayStr}T08:30:00.000Z` },
+                { id: 'L2', memberId: 'M101', date: todayStr, mealType: 'lunch', timestamp: `${todayStr}T13:15:00.000Z` },
+                { id: 'L3', memberId: 'M102', date: todayStr, mealType: 'lunch', timestamp: `${todayStr}T13:20:00.000Z` },
+                { id: 'L4', memberId: 'M103', date: todayStr, mealType: 'breakfast', timestamp: `${todayStr}T08:45:00.000Z` },
+                { id: 'L5', memberId: 'M104', date: todayStr, mealType: 'breakfast', timestamp: `${todayStr}T09:00:00.000Z` },
+
+                // Yesterday's Meals
+                { id: 'L6', memberId: 'M101', date: yesterdayStr, mealType: 'breakfast', timestamp: `${yesterdayStr}T08:30:00.000Z` },
+                { id: 'L7', memberId: 'M101', date: yesterdayStr, mealType: 'lunch', timestamp: `${yesterdayStr}T13:10:00.000Z` },
+                { id: 'L8', memberId: 'M101', date: yesterdayStr, mealType: 'dinner', timestamp: `${yesterdayStr}T20:30:00.000Z` },
+                { id: 'L9', memberId: 'M102', date: yesterdayStr, mealType: 'lunch', timestamp: `${yesterdayStr}T13:30:00.000Z` },
+                { id: 'L10', memberId: 'M102', date: yesterdayStr, mealType: 'dinner', timestamp: `${yesterdayStr}T20:45:00.000Z` },
+                { id: 'L11', memberId: 'M103', date: yesterdayStr, mealType: 'breakfast', timestamp: `${yesterdayStr}T08:50:00.000Z` },
+                { id: 'L12', memberId: 'M103', date: yesterdayStr, mealType: 'lunch', timestamp: `${yesterdayStr}T13:25:00.000Z` },
+
+                // 2 Days Ago Meals
+                { id: 'L13', memberId: 'M101', date: prevYesterdayStr, mealType: 'breakfast', timestamp: `${prevYesterdayStr}T08:20:00.000Z` },
+                { id: 'L14', memberId: 'M101', date: prevYesterdayStr, mealType: 'dinner', timestamp: `${prevYesterdayStr}T20:15:00.000Z` },
+                { id: 'L15', memberId: 'M105', date: prevYesterdayStr, mealType: 'lunch', timestamp: `${prevYesterdayStr}T13:00:00.000Z` }
+            ];
+
+            return { sampleMembers, sampleMeals };
+        }
+
+        function loadDataState() {
+            try {
+                const storedMembers = localStorage.getItem(STORAGE_KEY_MEMBERS);
+                const storedMeals = localStorage.getItem(STORAGE_KEY_MEALS);
+
+                if (storedMembers && storedMeals) {
+                    members = JSON.parse(storedMembers);
+                    meals = JSON.parse(storedMeals);
+                } else {
+                    const defaults = generateDefaultSampleData();
+                    members = defaults.sampleMembers;
+                    meals = defaults.sampleMeals;
+                    saveDataState();
+                }
+            } catch (e) {
+                console.error("Failed to parse LocalStorage data", e);
+                const defaults = generateDefaultSampleData();
+                members = defaults.sampleMembers;
+                meals = defaults.sampleMeals;
+            }
+
+            // By default check all active members
+            checkedMemberIds = new Set(members.filter(m => m.status === 'Active').map(m => m.id));
+        }
+
+        function saveDataState() {
+            localStorage.setItem(STORAGE_KEY_MEMBERS, JSON.stringify(members));
+            localStorage.setItem(STORAGE_KEY_MEALS, JSON.stringify(meals));
+        }
+
+        function getFormattedDateISO(dateObj) {
+            const year = dateObj.getFullYear();
+            const month = String(dateObj.getMonth() + 1).padStart(2, '0');
+            const day = String(dateObj.getDate()).padStart(2, '0');
+            return `${year}-${month}-${day}`;
+        }
+
+        function formatDisplayDate(isoDateStr) {
+            if (!isoDateStr) return '';
+            const parts = isoDateStr.split('-');
+            if (parts.length === 3) {
+                return `${parts[2]}-${parts[1]}-${parts[0]}`;
+            }
+            return isoDateStr;
+        }
+
+        function getOffsetDateISO(baseIsoStr, daysOffset) {
+            const parts = baseIsoStr.split('-');
+            const dt = new Date(parts[0], parts[1] - 1, parts[2]);
+            dt.setDate(dt.getDate() + daysOffset);
+            return getFormattedDateISO(dt);
+        }
+
+        function updateDateUI() {
+            document.getElementById('displayDateText').innerText = formatDisplayDate(selectedDate);
+            document.getElementById('datePicker').value = selectedDate;
+            document.getElementById('currentDateStatusText').innerText = `Entry Date: ${formatDisplayDate(selectedDate)}`;
+            renderDashboardMetrics();
+            renderMembersGrid();
+        }
+
+        function changeDate(delta) {
+            selectedDate = getOffsetDateISO(selectedDate, delta);
+            updateDateUI();
+        }
+
+        function setTodayDate() {
+            selectedDate = getFormattedDateISO(new Date());
+            updateDateUI();
+        }
+
+        function onDatePickerChange(newVal) {
+            if (newVal) {
+                selectedDate = newVal;
+                updateDateUI();
+            }
+        }
+
+        function getVisibleMembers() {
+            if (!searchQuery.trim()) return members;
+            const q = searchQuery.toLowerCase().trim();
+            return members.filter(m => 
+                m.name.toLowerCase().includes(q) ||
+                (m.mobile && m.mobile.toLowerCase().includes(q)) ||
+                (m.parentMobile && m.parentMobile.toLowerCase().includes(q)) ||
+                (m.room && m.room.toLowerCase().includes(q))
+            );
+        }
+
+        function onSearchInput(val) {
+            searchQuery = val;
+            renderMembersGrid();
+            updateSelectionSummary();
+        }
+
+        function toggleMemberCheck(memberId, isChecked) {
+            if (isChecked) {
+                checkedMemberIds.add(memberId);
+            } else {
+                checkedMemberIds.delete(memberId);
+            }
+            updateSelectionSummary();
+            renderDashboardMetrics();
+        }
+
+        function selectAllVisible() {
+            const visible = getVisibleMembers();
+            visible.forEach(m => checkedMemberIds.add(m.id));
+            renderMembersGrid();
+            updateSelectionSummary();
+            renderDashboardMetrics();
+            showToast("Selected all visible members");
+        }
+
+        function clearAllVisible() {
+            const visible = getVisibleMembers();
+            visible.forEach(m => checkedMemberIds.delete(m.id));
+            renderMembersGrid();
+            updateSelectionSummary();
+            renderDashboardMetrics();
+            showToast("Cleared selection");
+        }
+
+        function updateSelectionSummary() {
+            const visible = getVisibleMembers();
+            const checkedVisibleCount = visible.filter(m => checkedMemberIds.has(m.id)).length;
+            document.getElementById('selectionSummaryText').innerText = `Selected: ${checkedVisibleCount} / ${visible.length} Visible Members`;
+        }
+
+        function renderDashboardMetrics() {
+            const visible = getVisibleMembers();
+            const activeCount = visible.filter(m => m.status === 'Active').length;
+            const inactiveCount = visible.filter(m => m.status === 'Inactive').length;
+
+            document.getElementById('metricTotalMembers').innerText = visible.length;
+            document.getElementById('metricTotalSubtext').innerText = `Active: ${activeCount} | Inactive: ${inactiveCount}`;
+
+            // Checked Active members for selected date
+            const checkedActiveMembers = members.filter(m => m.status === 'Active' && checkedMemberIds.has(m.id));
+
+            let totalMarked = 0;
+            let totalExpected = 0;
+
+            checkedActiveMembers.forEach(m => {
+                const planCount = (m.plan.breakfast ? 1 : 0) + (m.plan.lunch ? 1 : 0) + (m.plan.dinner ? 1 : 0);
+                totalExpected += planCount;
+
+                // Marked meals count
+                const markedForMember = meals.filter(meal => meal.memberId === m.id && meal.date === selectedDate).length;
+                totalMarked += markedForMember;
+            });
+
+            const pendingReview = Math.max(0, totalExpected - totalMarked);
+
+            document.getElementById('metricMealsMarked').innerText = totalMarked;
+            document.getElementById('metricExpectedMeals').innerText = totalExpected;
+            document.getElementById('metricPendingReview').innerText = pendingReview;
+        }
+
+        function renderMembersGrid() {
+            const visibleMembers = getVisibleMembers();
+            const gridContainer = document.getElementById('membersGrid');
+            const emptyState = document.getElementById('emptyState');
+            document.getElementById('memberCardsCountBadge').innerText = visibleMembers.length;
+
+            if (visibleMembers.length === 0) {
+                gridContainer.innerHTML = '';
+                emptyState.classList.remove('hidden');
+                return;
+            } else {
+                emptyState.classList.add('hidden');
+            }
+
+            let html = '';
+            visibleMembers.forEach(m => {
+                const isChecked = checkedMemberIds.has(m.id);
+                const isActive = m.status === 'Active';
+
+                // Check meals marked today
+                const memberTodayMeals = meals.filter(meal => meal.memberId === m.id && meal.date === selectedDate);
+                const isBMarked = memberTodayMeals.some(meal => meal.mealType === 'breakfast');
+                const isLMarked = memberTodayMeals.some(meal => meal.mealType === 'lunch');
+                const isDMarked = memberTodayMeals.some(meal => meal.mealType === 'dinner');
+
+                html += `
+                    <div class="bg-white border ${isChecked ? 'border-brand-primary ring-1 ring-brand-primary/20' : 'border-brand-border'} rounded-2xl p-4 card-shadow space-y-3 transition-all hover:shadow-md">
+                        <!-- Card Header -->
+                        <div class="flex items-start justify-between gap-2 border-b border-slate-100 pb-2.5">
+                            <div class="flex items-center space-x-2.5">
+                                <input type="checkbox" ${isChecked ? 'checked' : ''} onchange="toggleMemberCheck('${m.id}', this.checked)" class="w-4 h-4 rounded text-brand-primary focus:ring-brand-primary cursor-pointer">
+                                <div>
+                                    <h4 class="font-bold text-sm text-brand-textDark leading-tight cursor-pointer hover:text-brand-primary" onclick="openProfileModal('${m.id}')">${escapeHTML(m.name)}</h4>
+                                    <span class="text-xs text-brand-textMuted font-medium">Room: ${escapeHTML(m.room || 'N/A')}</span>
+                                </div>
+                            </div>
+                            <span class="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-bold ${isActive ? 'bg-emerald-50 text-brand-success border border-emerald-200' : 'bg-red-50 text-brand-danger border border-red-200'}">
+                                ${isActive ? '● ACTIVE' : '● INACTIVE'}
+                            </span>
+                        </div>
+
+                        <!-- Card Body Info -->
+                        <div class="text-xs space-y-1 text-brand-textMuted font-medium">
+                            <div class="flex justify-between">
+                                <span>Mobile: <strong class="text-brand-textDark">${escapeHTML(m.mobile || 'N/A')}</strong></span>
+                                <span>Parent: <strong class="text-brand-textDark">${escapeHTML(m.parentMobile || 'N/A')}</strong></span>
+                            </div>
+                            <div class="flex items-center space-x-1 pt-1">
+                                <span class="text-[11px] font-bold uppercase text-brand-textMuted">Plan:</span>
+                                ${renderPlanBadges(m.plan)}
+                            </div>
+                        </div>
+
+                        <!-- Card Action Links -->
+                        <div class="flex items-center justify-between pt-1 border-t border-slate-100 text-xs">
+                            <button onclick="openProfileModal('${m.id}')" class="text-brand-primary hover:underline font-bold">PROFILE</button>
+                            <button onclick="openEditMemberModal('${m.id}')" class="text-brand-textDark hover:underline font-semibold">EDIT</button>
+                            <button onclick="openIndividualHistoryModal('${m.id}')" class="text-brand-purple hover:underline font-bold">HISTORY</button>
+                        </div>
+
+                        <!-- Meal Marking Buttons Row -->
+                        <div class="grid grid-cols-3 gap-2 pt-1">
+                            ${renderMealButton(m, 'breakfast', 'Breakfast', isBMarked)}
+                            ${renderMealButton(m, 'lunch', 'Lunch', isLMarked)}
+                            ${renderMealButton(m, 'dinner', 'Dinner', isDMarked)}
+                        </div>
+                    </div>
+                `;
+            });
+
+            gridContainer.innerHTML = html;
+        }
+
+        function renderPlanBadges(plan) {
+            let badges = '';
+            if (plan.breakfast) badges += `<span class="bg-amber-100 text-amber-800 font-bold text-[10px] px-1.5 py-0.5 rounded">B</span>`;
+            if (plan.lunch) badges += `<span class="bg-blue-100 text-blue-800 font-bold text-[10px] px-1.5 py-0.5 rounded">L</span>`;
+            if (plan.dinner) badges += `<span class="bg-purple-100 text-purple-800 font-bold text-[10px] px-1.5 py-0.5 rounded">D</span>`;
+            if (!badges) badges = `<span class="text-slate-400 font-normal">None</span>`;
+            return `<div class="flex space-x-1">${badges}</div>`;
+        }
+
+        function renderMealButton(member, mealType, label, isMarked) {
+            const isAllowedInPlan = member.plan[mealType];
+
+            if (!isAllowedInPlan) {
+                return `
+                    <button disabled class="w-full py-2 bg-slate-100 text-slate-400 text-[11px] font-bold rounded-xl cursor-not-allowed opacity-60">
+                        ${label}
+                    </button>
+                `;
+            }
+
+            if (isMarked) {
+                return `
+                    <button onclick="handleMealToggle('${member.id}', '${mealType}', true)" class="w-full py-2 bg-brand-success hover:bg-brand-successHover text-white text-[11px] font-bold rounded-xl shadow-2xs transition-all flex items-center justify-center gap-1">
+                        ✓ ${label}
+                    </button>
+                `;
+            } else {
+                // Vibrant color buttons matching Kivy design
+                let btnColor = 'bg-brand-warning hover:bg-brand-warningHover';
+                if (mealType === 'lunch') btnColor = 'bg-brand-primary hover:bg-brand-primaryHover';
+                if (mealType === 'dinner') btnColor = 'bg-brand-purple hover:bg-brand-purpleHover';
+
+                return `
+                    <button onclick="handleMealToggle('${member.id}', '${mealType}', false)" class="w-full py-2 ${btnColor} text-white text-[11px] font-bold rounded-xl shadow-2xs transition-all">
+                        ${label}
+                    </button>
+                `;
+            }
+        }
+
+        function handleMealToggle(memberId, mealType, currentlyMarked) {
+            const member = members.find(m => m.id === memberId);
+            if (!member) return;
+
+            if (currentlyMarked) {
+                // Trigger Uncheck Protection Modal matching Python logic
+                pendingUncheckAction = { memberId, mealType, date: selectedDate };
+                const formattedMeal = mealType.charAt(0).toUpperCase() + mealType.slice(1);
+                document.getElementById('uncheckConfirmText').innerText = 
+                    `Are you sure you want to unmark ${formattedMeal} for ${member.name} on ${formatDisplayDate(selectedDate)}?`;
+                openModal('uncheckConfirmModal');
+            } else {
+                // Direct mark meal
+                const newMealLog = {
+                    id: 'LOG_' + Date.now() + '_' + Math.random().toString(36).substr(2, 4),
+                    memberId: memberId,
+                    date: selectedDate,
+                    mealType: mealType,
+                    timestamp: new Date().toISOString()
+                };
+                meals.push(newMealLog);
+                saveDataState();
+                renderMembersGrid();
+                renderDashboardMetrics();
+                showToast(`${mealType.toUpperCase()} marked for ${member.name}`);
+            }
+        }
+
+        function executeMealUncheck() {
+            if (!pendingUncheckAction) return;
+
+            const { memberId, mealType, date } = pendingUncheckAction;
+            meals = meals.filter(m => !(m.memberId === memberId && m.mealType === mealType && m.date === date));
+            saveDataState();
+            closeModal('uncheckConfirmModal');
+            pendingUncheckAction = null;
+
+            renderMembersGrid();
+            renderDashboardMetrics();
+            
+            // Refresh modal if pending modal open
+            if (!document.getElementById('pendingReviewModal').classList.contains('hidden')) {
+                renderPendingReviewModal();
+            }
+
+            showToast(`Unmarked meal record successfully`);
+        }
+
+        function openAddMemberModal() {
+            document.getElementById('addMemberForm').reset();
+            document.getElementById('addJoinDate').value = getFormattedDateISO(new Date());
+            openModal('addMemberModal');
+        }
+
+        function handleAddMember(event) {
+            event.preventDefault();
+            const name = document.getElementById('addName').value.trim();
+            const mobile = document.getElementById('addMobile').value.trim();
+            const parentMobile = document.getElementById('addParentMobile').value.trim();
+            const room = document.getElementById('addRoom').value.trim();
+            const joinDate = document.getElementById('addJoinDate').value || getFormattedDateISO(new Date());
+            const status = document.getElementById('addStatus').value;
+
+            const breakfast = document.getElementById('addPlanBreakfast').checked;
+            const lunch = document.getElementById('addPlanLunch').checked;
+            const dinner = document.getElementById('addPlanDinner').checked;
+
+            if (!breakfast && !lunch && !dinner) {
+                alert("Please select at least one meal plan requirement.");
+                return;
+            }
+
+            const newMember = {
+                id: 'M' + Date.now().toString().slice(-4),
+                name,
+                mobile,
+                parentMobile,
+                room,
+                joinDate,
+                leaveDate: '',
+                status,
+                plan: { breakfast, lunch, dinner }
+            };
+
+            members.push(newMember);
+            if (status === 'Active') {
+                checkedMemberIds.add(newMember.id);
+            }
+
+            saveDataState();
+            closeModal('addMemberModal');
+            renderMembersGrid();
+            renderDashboardMetrics();
+            updateSelectionSummary();
+            showToast(`Registered new member: ${name}`);
+        }
+
+        function openEditMemberModal(memberId) {
+            const member = members.find(m => m.id === memberId);
+            if (!member) return;
+
+            document.getElementById('editMemberId').value = member.id;
+            document.getElementById('editName').value = member.name || '';
+            document.getElementById('editMobile').value = member.mobile || '';
+            document.getElementById('editParentMobile').value = member.parentMobile || '';
+            document.getElementById('editRoom').value = member.room || '';
+            document.getElementById('editStatus').value = member.status || 'Active';
+            document.getElementById('editJoinDate').value = member.joinDate || '';
+            document.getElementById('editLeaveDate').value = member.leaveDate || '';
+
+            document.getElementById('editPlanBreakfast').checked = member.plan.breakfast;
+            document.getElementById('editPlanLunch').checked = member.plan.lunch;
+            document.getElementById('editPlanDinner').checked = member.plan.dinner;
+
+            openModal('editMemberModal');
+        }
+
+        function handleEditMember(event) {
+            event.preventDefault();
+            const id = document.getElementById('editMemberId').value;
+            const member = members.find(m => m.id === id);
+            if (!member) return;
+
+            const breakfast = document.getElementById('editPlanBreakfast').checked;
+            const lunch = document.getElementById('editPlanLunch').checked;
+            const dinner = document.getElementById('editPlanDinner').checked;
+
+            if (!breakfast && !lunch && !dinner) {
+                alert("Please select at least one meal plan requirement.");
+                return;
+            }
+
+            member.name = document.getElementById('editName').value.trim();
+            member.mobile = document.getElementById('editMobile').value.trim();
+            member.parentMobile = document.getElementById('editParentMobile').value.trim();
+            member.room = document.getElementById('editRoom').value.trim();
+            member.status = document.getElementById('editStatus').value;
+            member.joinDate = document.getElementById('editJoinDate').value;
+            member.leaveDate = document.getElementById('editLeaveDate').value;
+            member.plan = { breakfast, lunch, dinner };
+
+            saveDataState();
+            closeModal('editMemberModal');
+            renderMembersGrid();
+            renderDashboardMetrics();
+            showToast(`Updated member details: ${member.name}`);
+        }
+
+        function deleteCurrentEditMember() {
+            const id = document.getElementById('editMemberId').value;
+            const member = members.find(m => m.id === id);
+            if (!member) return;
+
+            if (confirm(`Are you sure you want to permanently delete member ${member.name}?`)) {
+                members = members.filter(m => m.id !== id);
+                meals = meals.filter(m => m.memberId !== id);
+                checkedMemberIds.delete(id);
+                saveDataState();
+                closeModal('editMemberModal');
+                renderMembersGrid();
+                renderDashboardMetrics();
+                updateSelectionSummary();
+                showToast(`Deleted member ${member.name}`);
+            }
+        }
+
+        function openProfileModal(memberId) {
+            const member = members.find(m => m.id === memberId);
+            if (!member) return;
+
+            const totalMeals = meals.filter(m => m.memberId === memberId).length;
+
+            const container = document.getElementById('profileDetailsContent');
+            container.innerHTML = `
+                <div class="flex items-center space-x-3 bg-brand-bg p-3 rounded-xl border border-brand-border">
+                    <div class="w-12 h-12 bg-brand-primary text-white rounded-full flex items-center justify-center font-bold text-lg">
+                        ${member.name.charAt(0).toUpperCase()}
+                    </div>
+                    <div>
+                        <h4 class="font-bold text-base text-brand-textDark">${escapeHTML(member.name)}</h4>
+                        <p class="text-xs text-brand-textMuted">ID: ${member.id} • Room: ${escapeHTML(member.room || 'N/A')}</p>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-2 gap-3 text-xs">
+                    <div class="bg-slate-50 p-2.5 rounded-xl border border-slate-200">
+                        <span class="text-brand-textMuted font-medium block">Member Mobile</span>
+                        <strong class="text-brand-textDark font-bold text-sm">${escapeHTML(member.mobile || 'N/A')}</strong>
+                    </div>
+                    <div class="bg-slate-50 p-2.5 rounded-xl border border-slate-200">
+                        <span class="text-brand-textMuted font-medium block">Parent Mobile</span>
+                        <strong class="text-brand-textDark font-bold text-sm">${escapeHTML(member.parentMobile || 'N/A')}</strong>
+                    </div>
+                    <div class="bg-slate-50 p-2.5 rounded-xl border border-slate-200">
+                        <span class="text-brand-textMuted font-medium block">Joining Date</span>
+                        <strong class="text-brand-textDark font-bold">${formatDisplayDate(member.joinDate) || 'N/A'}</strong>
+                    </div>
+                    <div class="bg-slate-50 p-2.5 rounded-xl border border-slate-200">
+                        <span class="text-brand-textMuted font-medium block">Leaving Date</span>
+                        <strong class="text-brand-textDark font-bold">${formatDisplayDate(member.leaveDate) || 'Active'}</strong>
+                    </div>
+                </div>
+
+                <div class="bg-slate-50 p-3 rounded-xl border border-slate-200 text-xs space-y-1.5">
+                    <div class="flex justify-between">
+                        <span class="text-brand-textMuted font-semibold">Account Status:</span>
+                        <span class="font-bold ${member.status === 'Active' ? 'text-brand-success' : 'text-brand-danger'}">${member.status}</span>
+                    </div>
+                    <div class="flex justify-between">
+                        <span class="text-brand-textMuted font-semibold">Allowed Meal Plan:</span>
+                        <div>${renderPlanBadges(member.plan)}</div>
+                    </div>
+                    <div class="flex justify-between pt-1 border-t border-slate-200">
+                        <span class="text-brand-textMuted font-semibold">Lifetime Meals Consumed:</span>
+                        <strong class="text-brand-primary font-extrabold text-sm">${totalMeals}</strong>
+                    </div>
+                </div>
+            `;
+
+            openModal('profileModal');
+        }
+
+        function openPendingReviewModal() {
+            renderPendingReviewModal();
+            openModal('pendingReviewModal');
+        }
+
+        function renderPendingReviewModal() {
+            document.getElementById('pendingDateBadge').innerText = formatDisplayDate(selectedDate);
+            const container = document.getElementById('pendingMembersList');
+
+            // Find checked active members who have unmarked meals in their plan for selectedDate
+            const checkedActiveMembers = members.filter(m => m.status === 'Active' && checkedMemberIds.has(m.id));
+            const pendingList = [];
+
+            checkedActiveMembers.forEach(m => {
+                const todayLogs = meals.filter(meal => meal.memberId === m.id && meal.date === selectedDate);
+                const missingMeals = [];
+
+                if (m.plan.breakfast && !todayLogs.some(l => l.mealType === 'breakfast')) missingMeals.push('breakfast');
+                if (m.plan.lunch && !todayLogs.some(l => l.mealType === 'lunch')) missingMeals.push('lunch');
+                if (m.plan.dinner && !todayLogs.some(l => l.mealType === 'dinner')) missingMeals.push('dinner');
+
+                if (missingMeals.length > 0) {
+                    pendingList.push({ member: m, missingMeals });
+                }
+            });
+
+            if (pendingList.length === 0) {
+                container.innerHTML = `
+                    <div class="p-8 text-center text-brand-textMuted text-xs font-semibold">
+                        🎉 All expected meals for checked members are marked for ${formatDisplayDate(selectedDate)}!
+                    </div>
+                `;
+                return;
+            }
+
+            let html = '';
+            pendingList.forEach(item => {
+                const { member, missingMeals } = item;
+                html += `
+                    <div class="p-3.5 flex items-center justify-between hover:bg-slate-50 transition-colors">
+                        <div>
+                            <h5 class="font-bold text-xs text-brand-textDark">${escapeHTML(member.name)}</h5>
+                            <p class="text-[11px] text-brand-textMuted">Room: ${escapeHTML(member.room || 'N/A')} • Mob: ${escapeHTML(member.mobile || 'N/A')}</p>
+                        </div>
+                        <div class="flex items-center space-x-1.5">
+                            ${missingMeals.includes('breakfast') ? `
+                                <button onclick="quickMarkFromPending('${member.id}', 'breakfast')" class="px-2.5 py-1 bg-brand-warning hover:bg-brand-warningHover text-white text-[10px] font-bold rounded-lg shadow-2xs">
+                                    + Breakfast
+                                </button>
+                            ` : ''}
+                            ${missingMeals.includes('lunch') ? `
+                                <button onclick="quickMarkFromPending('${member.id}', 'lunch')" class="px-2.5 py-1 bg-brand-primary hover:bg-brand-primaryHover text-white text-[10px] font-bold rounded-lg shadow-2xs">
+                                    + Lunch
+                                </button>
+                            ` : ''}
+                            ${missingMeals.includes('dinner') ? `
+                                <button onclick="quickMarkFromPending('${member.id}', 'dinner')" class="px-2.5 py-1 bg-brand-purple hover:bg-brand-purpleHover text-white text-[10px] font-bold rounded-lg shadow-2xs">
+                                    + Dinner
+                                </button>
+                            ` : ''}
+                        </div>
+                    </div>
+                `;
+            });
+
+            container.innerHTML = html;
+        }
+
+        function quickMarkFromPending(memberId, mealType) {
+            const newMealLog = {
+                id: 'LOG_' + Date.now() + '_' + Math.random().toString(36).substr(2, 4),
+                memberId: memberId,
+                date: selectedDate,
+                mealType: mealType,
+                timestamp: new Date().toISOString()
+            };
+            meals.push(newMealLog);
+            saveDataState();
+            renderMembersGrid();
+            renderDashboardMetrics();
+            renderPendingReviewModal();
+            showToast(`Marked ${mealType.toUpperCase()}`);
+        }
+
+        function bulkMarkPending(mealType) {
+            const checkedActiveMembers = members.filter(m => m.status === 'Active' && checkedMemberIds.has(m.id));
+            let markedCount = 0;
+
+            checkedActiveMembers.forEach(m => {
+                if (m.plan[mealType]) {
+                    const alreadyMarked = meals.some(meal => meal.memberId === m.id && meal.date === selectedDate && meal.mealType === mealType);
+                    if (!alreadyMarked) {
+                        meals.push({
+                            id: 'LOG_' + Date.now() + '_' + Math.random().toString(36).substr(2, 4),
+                            memberId: m.id,
+                            date: selectedDate,
+                            mealType: mealType,
+                            timestamp: new Date().toISOString()
+                        });
+                        markedCount++;
+                    }
+                }
+            });
+
+            saveDataState();
+            renderMembersGrid();
+            renderDashboardMetrics();
+            renderPendingReviewModal();
+            showToast(`Bulk marked ${markedCount} ${mealType.toUpperCase()} meals`);
+        }
+
+        let currentIndivHistoryMemberId = null;
+
+        function openIndividualHistoryModal(memberId) {
+            currentIndivHistoryMemberId = memberId;
+            document.getElementById('indivHistoryFrom').value = getOffsetDateISO(selectedDate, -7);
+            document.getElementById('indivHistoryTo').value = selectedDate;
+            document.getElementById('indivHistoryMode').value = 'all';
+
+            renderIndividualHistoryModal();
+            openModal('individualHistoryModal');
+        }
+
+        function renderIndividualHistoryModal() {
+            if (!currentIndivHistoryMemberId) return;
+            const member = members.find(m => m.id === currentIndivHistoryMemberId);
+            if (!member) return;
+
+            document.getElementById('indivHistoryTitle').innerText = `${member.name} - Meal History`;
+            
+            const mode = document.getElementById('indivHistoryMode').value;
+            const fromDate = document.getElementById('indivHistoryFrom').value;
+            const toDate = document.getElementById('indivHistoryTo').value;
+
+            let filtered = meals.filter(m => m.memberId === currentIndivHistoryMemberId);
+
+            if (mode === 'selectedDate') {
+                filtered = filtered.filter(m => m.date === selectedDate);
+            } else if (mode === 'range') {
+                if (fromDate) filtered = filtered.filter(m => m.date >= fromDate);
+                if (toDate) filtered = filtered.filter(m => m.date <= toDate);
+            }
+
+            // Sort newest first
+            filtered.sort((a, b) => b.date.localeCompare(a.date) || b.timestamp.localeCompare(a.timestamp));
+
+            document.getElementById('indivHistorySummaryText').innerText = `Total Records Found: ${filtered.length}`;
+
+            const tbody = document.getElementById('indivHistoryTableBody');
+            if (filtered.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="4" class="p-4 text-center text-brand-textMuted">No meal records found for the selected filter.</td></tr>`;
+                return;
+            }
+
+            let html = '';
+            filtered.forEach(m => {
+                const formattedTime = m.timestamp ? new Date(m.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : 'N/A';
+                html += `
+                    <tr class="hover:bg-slate-50">
+                        <td class="p-3 font-semibold text-brand-textDark">${formatDisplayDate(m.date)}</td>
+                        <td class="p-3 font-bold uppercase ${getMealColorText(m.mealType)}">${m.mealType}</td>
+                        <td class="p-3 text-brand-textMuted">${formattedTime}</td>
+                        <td class="p-3 text-right">
+                            <button onclick="deleteSingleMealRecord('${m.id}')" class="text-brand-danger hover:underline font-bold text-[11px]">Delete</button>
+                        </td>
+                    </tr>
+                `;
+            });
+            tbody.innerHTML = html;
+        }
+
+        function getMealColorText(mealType) {
+            if (mealType === 'breakfast') return 'text-brand-warning';
+            if (mealType === 'lunch') return 'text-brand-primary';
+            return 'text-brand-purple';
+        }
+
+        function deleteSingleMealRecord(mealId) {
+            if (confirm("Delete this single meal record?")) {
+                meals = meals.filter(m => m.id !== mealId);
+                saveDataState();
+                renderIndividualHistoryModal();
+                renderMembersGrid();
+                renderDashboardMetrics();
+                showToast("Record deleted");
+            }
+        }
+
+        function exportIndividualHistoryCSV() {
+            if (!currentIndivHistoryMemberId) return;
+            const member = members.find(m => m.id === currentIndivHistoryMemberId);
+            if (!member) return;
+
+            const mode = document.getElementById('indivHistoryMode').value;
+            const fromDate = document.getElementById('indivHistoryFrom').value;
+            const toDate = document.getElementById('indivHistoryTo').value;
+
+            let filtered = meals.filter(m => m.memberId === currentIndivHistoryMemberId);
+            if (mode === 'selectedDate') filtered = filtered.filter(m => m.date === selectedDate);
+            if (mode === 'range') {
+                if (fromDate) filtered = filtered.filter(m => m.date >= fromDate);
+                if (toDate) filtered = filtered.filter(m => m.date <= toDate);
+            }
+
+            let csv = "Member ID,Member Name,Room,Date,Meal Type,Timestamp\n";
+            filtered.forEach(m => {
+                csv += `"${member.id}","${member.name}","${member.room || ''}","${m.date}","${m.mealType}","${m.timestamp || ''}"\n`;
+            });
+
+            downloadCSVFile(`Meal_History_${member.name.replace(/\s+/g, '_')}_${selectedDate}.csv`, csv);
+            showToast("Exported CSV file");
+        }
+
+        function openConsolidatedHistoryModal() {
+            populateConsolidatedMemberDropdown();
+            document.getElementById('consHistoryFrom').value = getOffsetDateISO(selectedDate, -7);
+            document.getElementById('consHistoryTo').value = selectedDate;
+            document.getElementById('consHistoryMode').value = 'selectedDate';
+
+            renderConsolidatedHistoryModal();
+            openModal('consolidatedHistoryModal');
+        }
+
+        function populateConsolidatedMemberDropdown() {
+            const select = document.getElementById('consHistoryMemberFilter');
+            let html = `<option value="all">-- All Customers --</option>`;
+            members.forEach(m => {
+                html += `<option value="${m.id}">${escapeHTML(m.name)} (Room ${escapeHTML(m.room || 'N/A')})</option>`;
+            });
+            select.innerHTML = html;
+        }
+
+        function renderConsolidatedHistoryModal() {
+            const memberFilter = document.getElementById('consHistoryMemberFilter').value;
+            const mode = document.getElementById('consHistoryMode').value;
+            const fromDate = document.getElementById('consHistoryFrom').value;
+            const toDate = document.getElementById('consHistoryTo').value;
+
+            let filtered = [...meals];
+
+            if (memberFilter !== 'all') {
+                filtered = filtered.filter(m => m.memberId === memberFilter);
+            }
+
+            if (mode === 'selectedDate') {
+                filtered = filtered.filter(m => m.date === selectedDate);
+            } else if (mode === 'range') {
+                if (fromDate) filtered = filtered.filter(m => m.date >= fromDate);
+                if (toDate) filtered = filtered.filter(m => m.date <= toDate);
+            }
+
+            // Metrics summary counts
+            const bCount = filtered.filter(m => m.mealType === 'breakfast').length;
+            const lCount = filtered.filter(m => m.mealType === 'lunch').length;
+            const dCount = filtered.filter(m => m.mealType === 'dinner').length;
+
+            document.getElementById('consTotalRecordsText').innerText = `Total Logs: ${filtered.length}`;
+            document.getElementById('consBreakfastCountText').innerText = `B: ${bCount}`;
+            document.getElementById('consLunchCountText').innerText = `L: ${lCount}`;
+            document.getElementById('consDinnerCountText').innerText = `D: ${dCount}`;
+
+            // Sort newest first
+            filtered.sort((a, b) => b.date.localeCompare(a.date) || b.timestamp.localeCompare(a.timestamp));
+
+            const tbody = document.getElementById('consHistoryTableBody');
+            if (filtered.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="6" class="p-4 text-center text-brand-textMuted">No consolidated records found.</td></tr>`;
+                return;
+            }
+
+            let html = '';
+            filtered.forEach(m => {
+                const mem = members.find(x => x.id === m.memberId) || { name: 'Unknown', room: 'N/A' };
+                const timeFormatted = m.timestamp ? new Date(m.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : 'N/A';
+
+                html += `
+                    <tr class="hover:bg-slate-50">
+                        <td class="p-3 font-semibold text-brand-textDark">${formatDisplayDate(m.date)}</td>
+                        <td class="p-3 font-bold text-brand-textDark">${escapeHTML(mem.name)}</td>
+                        <td class="p-3 text-brand-textMuted">${escapeHTML(mem.room || 'N/A')}</td>
+                        <td class="p-3 font-bold uppercase ${getMealColorText(m.mealType)}">${m.mealType}</td>
+                        <td class="p-3 text-brand-textMuted">${timeFormatted}</td>
+                        <td class="p-3 text-right">
+                            <button onclick="deleteConsolidatedMealRecord('${m.id}')" class="text-brand-danger hover:underline font-bold text-[11px]">Delete</button>
+                        </td>
+                    </tr>
+                `;
+            });
+
+            tbody.innerHTML = html;
+        }
+
+        function deleteConsolidatedMealRecord(mealId) {
+            if (confirm("Delete this log record?")) {
+                meals = meals.filter(m => m.id !== mealId);
+                saveDataState();
+                renderConsolidatedHistoryModal();
+                renderMembersGrid();
+                renderDashboardMetrics();
+                showToast("Meal record removed");
+            }
+        }
+
+        function exportConsolidatedHistoryCSV() {
+            const memberFilter = document.getElementById('consHistoryMemberFilter').value;
+            const mode = document.getElementById('consHistoryMode').value;
+            const fromDate = document.getElementById('consHistoryFrom').value;
+            const toDate = document.getElementById('consHistoryTo').value;
+
+            let filtered = [...meals];
+            if (memberFilter !== 'all') filtered = filtered.filter(m => m.memberId === memberFilter);
+            if (mode === 'selectedDate') filtered = filtered.filter(m => m.date === selectedDate);
+            if (mode === 'range') {
+                if (fromDate) filtered = filtered.filter(m => m.date >= fromDate);
+                if (toDate) filtered = filtered.filter(m => m.date <= toDate);
+            }
+
+            let csv = "Date,Member ID,Member Name,Room,Meal Type,Timestamp\n";
+            filtered.forEach(m => {
+                const mem = members.find(x => x.id === m.memberId) || { name: 'Unknown', room: 'N/A' };
+                csv += `"${m.date}","${m.memberId}","${mem.name}","${mem.room || ''}","${m.mealType}","${m.timestamp || ''}"\n`;
+            });
+
+            downloadCSVFile(`Consolidated_Meal_Report_${selectedDate}.csv`, csv);
+            showToast("Exported Consolidated CSV Report");
+        }
+
+        function openMemberListModal() {
+            renderMemberListModalTable();
+            openModal('memberListModal');
+        }
+
+        function renderMemberListModalTable() {
+            const query = (document.getElementById('memberListSearch').value || '').toLowerCase().trim();
+            const tbody = document.getElementById('memberListTableBody');
+
+            const filtered = members.filter(m => 
+                m.name.toLowerCase().includes(query) ||
+                (m.mobile && m.mobile.toLowerCase().includes(query)) ||
+                (m.room && m.room.toLowerCase().includes(query))
+            );
+
+            if (filtered.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="7" class="p-4 text-center text-brand-textMuted">No matching members found.</td></tr>`;
+                return;
+            }
+
+            let html = '';
+            filtered.forEach(m => {
+                html += `
+                    <tr class="hover:bg-slate-50">
+                        <td class="p-3 font-bold ${m.status === 'Active' ? 'text-brand-success' : 'text-brand-danger'}">● ${m.status}</td>
+                        <td class="p-3 font-bold text-brand-textDark">${escapeHTML(m.name)}</td>
+                        <td class="p-3 text-brand-textMuted">${escapeHTML(m.mobile || 'N/A')}</td>
+                        <td class="p-3 text-brand-textMuted">${escapeHTML(m.parentMobile || 'N/A')}</td>
+                        <td class="p-3 font-semibold text-brand-textDark">${escapeHTML(m.room || 'N/A')}</td>
+                        <td class="p-3">${renderPlanBadges(m.plan)}</td>
+                        <td class="p-3 text-brand-textMuted">${formatDisplayDate(m.joinDate)}</td>
+                    </tr>
+                `;
+            });
+
+            tbody.innerHTML = html;
+        }
+
+        function exportMemberListCSV() {
+            let csv = "ID,Name,Mobile,Parent Mobile,Room,Status,Joining Date,Leaving Date,Breakfast,Lunch,Dinner\n";
+            members.forEach(m => {
+                csv += `"${m.id}","${m.name}","${m.mobile || ''}","${m.parentMobile || ''}","${m.room || ''}","${m.status}","${m.joinDate || ''}","${m.leaveDate || ''}","${m.plan.breakfast}","${m.plan.lunch}","${m.plan.dinner}"\n`;
+            });
+            downloadCSVFile(`Padmavati_Mess_Members_List.csv`, csv);
+            showToast("Exported Member Directory CSV");
+        }
+
+        function openSettingsModal() {
+            document.getElementById('dbStatusMembersCount').innerText = `Members Count: ${members.length}`;
+            document.getElementById('dbStatusMealsCount').innerText = `Total Meal Logs: ${meals.length}`;
+            openModal('settingsModal');
+        }
+
+        function exportJSONBackup() {
+            const backupData = {
+                exportDate: new Date().toISOString(),
+                version: '2.5',
+                members: members,
+                meals: meals
+            };
+            const jsonStr = JSON.stringify(backupData, null, 2);
+            const blob = new Blob([jsonStr], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `Padmavati_Mess_Backup_${selectedDate}.json`;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+            showToast("Database exported to JSON file");
+        }
+
+        function importJSONBackup(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                try {
+                    const parsed = JSON.parse(e.target.result);
+                    if (parsed && Array.isArray(parsed.members) && Array.isArray(parsed.meals)) {
+                        members = parsed.members;
+                        meals = parsed.meals;
+                        checkedMemberIds = new Set(members.filter(m => m.status === 'Active').map(m => m.id));
+                        saveDataState();
+                        refreshDataUI();
+                        closeModal('settingsModal');
+                        showToast("Successfully restored database from JSON!");
+                    } else {
+                        alert("Invalid JSON backup structure.");
+                    }
+                } catch (err) {
+                    alert("Error parsing backup file: " + err.message);
+                }
+            };
+            reader.readAsText(file);
+        }
+
+        function resetToSampleData() {
+            if (confirm("Reset database to initial sample records? Current custom entries will be replaced.")) {
+                const defaults = generateDefaultSampleData();
+                members = defaults.sampleMembers;
+                meals = defaults.sampleMeals;
+                checkedMemberIds = new Set(members.filter(m => m.status === 'Active').map(m => m.id));
+                saveDataState();
+                refreshDataUI();
+                closeModal('settingsModal');
+                showToast("Reset to sample database");
+            }
+        }
+
+        function clearAllDatabaseData() {
+            if (confirm("DANGER: Are you sure you want to delete ALL members and meal logs? This cannot be undone.")) {
+                members = [];
+                meals = [];
+                checkedMemberIds.clear();
+                saveDataState();
+                refreshDataUI();
+                closeModal('settingsModal');
+                showToast("Cleared all records");
+            }
+        }
+
+        function refreshDataUI() {
+            renderDashboardMetrics();
+            renderMembersGrid();
+            updateSelectionSummary();
+            showToast("UI updated & synchronized");
+        }
+
+        function openModal(modalId) {
+            document.getElementById(modalId).classList.remove('hidden');
+        }
+
+        function closeModal(modalId) {
+            document.getElementById(modalId).classList.add('hidden');
+        }
+
+        function showToast(message) {
+            const toast = document.getElementById('toastNotification');
+            document.getElementById('toastText').innerText = message;
+            toast.classList.remove('translate-y-20', 'opacity-0');
+            toast.classList.add('translate-y-0', 'opacity-100');
+
+            setTimeout(() => {
+                toast.classList.remove('translate-y-0', 'opacity-100');
+                toast.classList.add('translate-y-20', 'opacity-0');
+            }, 2500);
+        }
+
+        function downloadCSVFile(filename, csvContent) {
+            const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+            const link = document.createElement("a");
+            if (link.download !== undefined) {
+                const url = URL.createObjectURL(blob);
+                link.setAttribute("href", url);
+                link.setAttribute("download", filename);
+                link.style.visibility = 'hidden';
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+            }
+        }
+
+        function escapeHTML(str) {
+            if (!str) return '';
+            return str.replace(/[&<>'"]/g, 
+                tag => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', "'": '&#39;', '"': '&quot;' }[tag] || tag)
+            );
+        }
+
+        window.onload = function() {
+            loadDataState();
+            updateDateUI();
+            updateSelectionSummary();
+        };
+    </script>
+</body>
+</html>
